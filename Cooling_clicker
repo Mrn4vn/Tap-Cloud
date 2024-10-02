@@ -1,0 +1,72 @@
+import pygame
+from pygame.locals import *
+
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+clock = pygame.time.Clock()
+
+player_x = 100
+player_y = 100
+player_speed = 2
+player_width = 30
+player_height = 30
+player_color = (255, 0, 0)
+
+cloud_count = 0
+cloud_max_count = 10
+cloud_speed = 1
+cloud_width = 30
+cloud_height = 30
+cloud_color = (255, 255, 255)
+
+def draw_text(surface, text, size, x, y, color=(255, 255, 255)):
+    font = pygame.font.Font(None, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surface.blit(text_surface, text_rect)
+
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            exit()
+    
+    screen.fill((0, 0, 0))
+    
+    # Player movement
+    keys = pygame.key.get_pressed()
+    if keys[K_LEFT]:
+        player_x -= player_speed
+    elif keys[K_RIGHT]:
+        player_x += player_speed
+    
+    if player_x <= 0:
+        player_x = 0
+    elif player_x + player_width >= screen.get_width():
+        player_x = screen.get_width() - player_width
+    
+    # Draw player
+    pygame.draw.rect(screen, player_color, (player_x, player_y, player_width, player_height))
+    
+    # Add clouds when player clicks
+    if pygame.mouse.get_pressed()[0]:
+        cloud_count += 1
+        if cloud_count > cloud_max_count:
+            cloud_count = 0
+        cloud_x = randint(0, screen.get_width())
+        cloud_y = randint(0, screen.get_height())
+        cloud_list.append([cloud_x, cloud_y])
+    
+    # Update clouds positions
+    for cloud in cloud_list:
+        cloud[0] -= cloud_speed
+        cloud[1] -= cloud_speed
+        if cloud[0] <= 0 or cloud[0] + cloud_width >= screen.get_width() or cloud[1] <= 0 or cloud[1] + cloud_height >= screen.get_height():
+            del cloud_list[cloud_list.index(cloud)]
+        else:
+            pygame.draw.rect(screen, cloud_color, (cloud[0], cloud_y, cloud_width, cloud_height))
+    
+    draw_text(screen, f'Cloud Count: {cloud_count}', 30, 10, 10)
+    
+    clock.tick(60)
+    pygame.display.update()
